@@ -1,3 +1,48 @@
+function switchToTab(someTabId) {
+    try {
+        chrome.tabs.update(someTabId, { "active": true });
+    } catch (e) {
+        console.log(`Error changing tab to ID ${someTabId}: ${e}`);
+    }
+}
+
+function discardTab(someTabId) {
+    try {
+        chrome.tabs.discard(someTabId);
+    } catch (e) {
+        console.log(`Error discarding tab with ID ${someTabId}: ${e}`);
+    }
+}
+
+function findPrevOrNextTab(currentId, nonDiscardedTabs) {
+    let currentTabIndex = -1;
+
+    // Get the current tab's index
+    for (let i = 0; i < nonDiscardedTabs.length; i++) {
+        if (nonDiscardedTabs[i] != undefined && nonDiscardedTabs[i].id === currentId) {
+            currentTabIndex = i;
+            break;
+        }
+    }
+
+    // Go backward and check previous tabs
+    for (let i = currentTabIndex; i >= 0; i--) {
+        if (nonDiscardedTabs[i] != undefined && nonDiscardedTabs[i].id !== currentId) {
+            return nonDiscardedTabs[i].id;
+        }
+    }
+
+    // Couldn't find a tab going backward so go forward instead
+    for (let i = currentTabIndex; i < nonDiscardedTabs.length; i++) {
+        if (nonDiscardedTabs[i] != undefined && nonDiscardedTabs[i].id !== currentId) {
+            return nonDiscardedTabs[i].id;
+        }
+    }
+
+    // Couldn't find a tab to switch to
+    return -1;
+}
+
 function discardActiveTab() {
     var nonDiscardedTabs = null;
 
@@ -9,46 +54,19 @@ function discardActiveTab() {
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         var currentTab = tabs[0];
 
-        if (currentTab) {
-            const currentTabId = currentTab.id;
-            let smallestDiff = Number.MAX_SAFE_INTEGER;
-            let closestId = -1;
+        if (!currentTab) {
+            return;
+        }
 
-            for (const tab of nonDiscardedTabs) {
-                if (tab.id == currentTabId) {
-                    continue;
-                }
+        const currentTabId = currentTab.id;
+        const foundId = findPrevOrNextTab(currentTabId, nonDiscardedTabs);
 
-                const diff = Math.abs(currentTabId - tab.id);
-
-                if (diff < smallestDiff) {
-                    smallestDiff = diff;
-                    closestId = tab.id;
-                }
-            }
-
+        if (foundId !== -1) {
             // It's not possible to discard the active tab
             // so switch to a different non-discarded tab and
             // then discard the previous tab
-
-            // If no tab was found don't try switching/discarding the tab
-            if (closestId == -1) {
-                return;
-            }
-
-            // Switch tab
-            try {
-                chrome.tabs.update(closestId, { "active": true });
-            } catch (e) {
-                console.log(`Error changing tab to ID ${closestId}: ${e}`);
-            }
-
-            // Discard tab
-            try {
-                chrome.tabs.discard(currentTabId);
-            } catch (e) {
-                console.log(`Error discarding tab with ID ${currentTabId}: ${e}`);
-            }
+            switchToTab(foundId);
+            discardTab(currentTabId);
         }
     });
 }

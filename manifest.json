@@ -2,7 +2,7 @@
     "description": "Discards the active tab",
     "manifest_version": 2,
     "name": "Discard Active Tab Toolbar Button",
-    "version": "2021.10.26.1",
+    "version": "2021.11.6.1",
     "background": {
         "scripts": [
             "main.js"
