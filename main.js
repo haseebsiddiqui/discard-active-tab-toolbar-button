@@ -71,4 +71,4 @@ function discardActiveTab() {
     });
 }
 
-browser.browserAction.onClicked.addListener(discardActiveTab);
+chrome.browserAction.onClicked.addListener(discardActiveTab);
