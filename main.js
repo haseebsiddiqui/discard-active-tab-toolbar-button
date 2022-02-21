@@ -1,3 +1,26 @@
+const PREV = "prev";
+const NEXT = "next";
+
+var discardDirection = NEXT;
+
+var storageItem = null;
+
+function getDiscardDirection() {
+    storageItem = browser.storage.local.get('savedValue');
+
+    storageItem.then(res => {
+        if (res["savedValue"] == "prevTab") {
+            discardDirection = PREV;
+        }
+        else if (res["savedValue"] == "nextTab") {
+            discardDirection = NEXT;
+        }
+        else {
+            discardDirection = NEXT;
+        }
+    });
+}
+
 function switchToTab(someTabId) {
     try {
         chrome.tabs.update(someTabId, { "active": true });
@@ -25,17 +48,33 @@ function findPrevOrNextTab(currentId, nonDiscardedTabs) {
         }
     }
 
-    // Go backward and check previous tabs
-    for (let i = currentTabIndex; i >= 0; i--) {
-        if (nonDiscardedTabs[i] != undefined && nonDiscardedTabs[i].id !== currentId) {
-            return nonDiscardedTabs[i].id;
+    if (discardDirection === PREV) {
+        // Go backward and check previous tabs
+        for (let i = currentTabIndex; i >= 0; i--) {
+            if (nonDiscardedTabs[i] != undefined && nonDiscardedTabs[i].id !== currentId) {
+                return nonDiscardedTabs[i].id;
+            }
         }
-    }
 
-    // Couldn't find a tab going backward so go forward instead
-    for (let i = currentTabIndex; i < nonDiscardedTabs.length; i++) {
-        if (nonDiscardedTabs[i] != undefined && nonDiscardedTabs[i].id !== currentId) {
-            return nonDiscardedTabs[i].id;
+        // Couldn't find a tab going backward so go forward instead
+        for (let i = currentTabIndex; i < nonDiscardedTabs.length; i++) {
+            if (nonDiscardedTabs[i] != undefined && nonDiscardedTabs[i].id !== currentId) {
+                return nonDiscardedTabs[i].id;
+            }
+        }
+    } else if (discardDirection === NEXT) {
+        // Go forward
+        for (let i = currentTabIndex; i < nonDiscardedTabs.length; i++) {
+            if (nonDiscardedTabs[i] != undefined && nonDiscardedTabs[i].id !== currentId) {
+                return nonDiscardedTabs[i].id;
+            }
+        }
+
+        // Go backward
+        for (let i = currentTabIndex; i >= 0; i--) {
+            if (nonDiscardedTabs[i] != undefined && nonDiscardedTabs[i].id !== currentId) {
+                return nonDiscardedTabs[i].id;
+            }
         }
     }
 
@@ -71,4 +110,22 @@ function discardActiveTab() {
     });
 }
 
-chrome.browserAction.onClicked.addListener(discardActiveTab);
+function main() {
+    storageItem = browser.storage.local.get('savedValue');
+
+    storageItem.then(res => {
+        if (res["savedValue"] == "prevTab") {
+            discardDirection = PREV;
+        }
+        else if (res["savedValue"] == "nextTab") {
+            discardDirection = NEXT;
+        }
+        else {
+            discardDirection = NEXT;
+        }
+
+        discardActiveTab();
+    });
+}
+
+chrome.browserAction.onClicked.addListener(main);

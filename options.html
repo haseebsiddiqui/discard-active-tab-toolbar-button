@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8" />
+</head>
+
+<body>
+    <br>
+    <br>
+
+    <form>
+        <br>
+        <div>After discarding the active tab, what tab should the extension go to?</div> <br>
+
+        <div id="currentValue"></div> <br>
+
+        <input type="radio" id="nextTab" name="myButtons" value="nextTab">
+        <label for="nextTab">The next tab</label> <br>
+
+        <input type="radio" id="prevTab" name="myButtons" value="prevTab">
+        <label for="prevTab">The previous tab</label> <br> <br>
+
+        <button type="submit" id="saveButton">Save</button> <br> <br>
+
+        <div>Note: If tabs can't be discarded in the selected direction, tabs will be start to be
+            discarded in the opposite direction.</div> <br>
+
+    </form>
+
+    <script src="options.js"></script>
+</body>
+
+</html>

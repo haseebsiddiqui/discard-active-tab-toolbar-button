@@ -2,7 +2,7 @@
     "description": "Discards the active tab",
     "manifest_version": 2,
     "name": "Discard Active Tab Toolbar Button",
-    "version": "2022.2.14.1",
+    "version": "2022.2.21.1",
     "background": {
         "scripts": [
             "main.js"
@@ -13,5 +13,12 @@
             "16": "icons/favicon-16x16.png",
             "32": "icons/favicon-32x32.png"
         }
-    }
+    },
+    "options_ui": {
+        "page": "options.html",
+        "browser_style": true
+    },
+    "permissions": [
+        "storage"
+    ]
 }
